@@ -577,76 +577,8 @@ elif page == "🌳  Decision Tree Rules":
         """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    section_header("Visual Decision Tree (max_depth=4)", icon="🌳")
-
-    # ── Matplotlib visual tree ──────────────────────────────────────────────
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    import matplotlib.patches as mpatches
-    from sklearn.tree import plot_tree
-
-    fig_tree, ax = plt.subplots(figsize=(28, 12))
-    fig_tree.patch.set_facecolor('#0d1321')
-    ax.set_facecolor('#0d1321')
-
-    plot_tree(
-        dt_model,
-        feature_names=feature_names,
-        class_names=['Retained', 'Attrited'],
-        filled=True,
-        rounded=True,
-        fontsize=8,
-        ax=ax,
-        impurity=False,
-        proportion=False,
-        precision=2,
-    )
-
-    # Re-colour the boxes: leaf nodes green (retained) or red (attrited), splits = indigo
-    for artist in ax.get_children():
-        if hasattr(artist, 'get_facecolor'):
-            fc = artist.get_facecolor()
-            # plot_tree colours nodes by class; darken/theme them
-            if hasattr(artist, 'set_facecolor'):
-                r, g, b, a = fc
-                # Reddish → attrition node
-                if r > 0.6 and g < 0.5:
-                    artist.set_facecolor('#5c1a1a')
-                    artist.set_edgecolor('#ef4444')
-                # Greenish → retained node
-                elif g > 0.5 and r < 0.6:
-                    artist.set_facecolor('#0e3d2d')
-                    artist.set_edgecolor('#10b981')
-                else:
-                    artist.set_facecolor('#1e2a4a')
-                    artist.set_edgecolor('#6366f1')
-
-    # Style all text white
-    for text in ax.texts:
-        text.set_color('#f9fafb')
-        text.set_fontfamily('monospace')
-
-    ax.set_title('HR Attrition Decision Tree  (max_depth = 4)',
-                 color='#f9fafb', fontsize=14, fontweight='bold', pad=12)
-
-    # Legend patches
-    patches = [
-        mpatches.Patch(facecolor='#0e3d2d', edgecolor='#10b981', label='Retained (class 0)'),
-        mpatches.Patch(facecolor='#5c1a1a', edgecolor='#ef4444', label='Attrited  (class 1)'),
-        mpatches.Patch(facecolor='#1e2a4a', edgecolor='#6366f1', label='Split node'),
-    ]
-    ax.legend(handles=patches, loc='lower right', framealpha=0.3,
-              facecolor='#111827', edgecolor='#6366f1',
-              labelcolor='#f9fafb', fontsize=9)
-
-    plt.tight_layout()
-    st.pyplot(fig_tree, use_container_width=True)
-    plt.close(fig_tree)
-
-    # ── Text rules as collapsible fallback ─────────────────────────────────
-    with st.expander("📄 View raw text rules", expanded=False):
-        st.code(rules_text, language='text')
+    section_header("Decision Tree Rules (max_depth=4)", icon="🌳")
+    st.code(rules_text, language='text')
 
     st.markdown("<br>", unsafe_allow_html=True)
     section_header("Model Interpretability", icon="🔎")

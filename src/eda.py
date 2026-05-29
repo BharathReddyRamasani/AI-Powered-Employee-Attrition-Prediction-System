@@ -172,7 +172,10 @@ def jobrole_attrition_heatmap(df: pd.DataFrame) -> go.Figure:
         text=[[f"{v:.1f}%" for v in row] for row in pivot.values],
         texttemplate='%{text}',
         hovertemplate='<b>%{y}</b> | %{x}<br>Attrition: %{z:.1f}%<extra></extra>',
-        colorbar=dict(title='Rate (%)', tickfont=dict(color=TEXT), titlefont=dict(color=TEXT)),
+        colorbar=dict(
+            title=dict(text='Rate (%)', font=dict(color=TEXT)),
+            tickfont=dict(color=TEXT)
+        ),
     ))
     fig.update_layout(
         title=dict(text='Attrition Rate by Job Role & Department (%)', font=dict(size=16, color=TEXT), x=0.5),
@@ -224,7 +227,7 @@ def satisfaction_radar(df: pd.DataFrame) -> go.Figure:
             r=vals + [vals[0]], theta=labels + [labels[0]],
             fill='toself', name=name,
             line_color=color,
-            fillcolor=color + '33',
+            opacity=0.75,
         ))
     fig.update_layout(
         polar=dict(
@@ -282,7 +285,10 @@ def correlation_heatmap(df: pd.DataFrame) -> go.Figure:
         text=[[f"{v:.2f}" for v in row] for row in corr.values],
         texttemplate='%{text}',
         hovertemplate='%{y} × %{x}<br>r = %{z:.3f}<extra></extra>',
-        colorbar=dict(title='r', tickfont=dict(color=TEXT), titlefont=dict(color=TEXT)),
+        colorbar=dict(
+            title=dict(text='r', font=dict(color=TEXT)),
+            tickfont=dict(color=TEXT)
+        ),
     ))
     fig.update_layout(
         title=dict(text='Feature Correlation Matrix', font=dict(size=16, color=TEXT), x=0.5),

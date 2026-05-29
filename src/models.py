@@ -119,7 +119,7 @@ def radar_comparison_chart(results: dict) -> go.Figure:
             theta=categories + [categories[0]],
             name=name,
             fill='toself',
-            fillcolor=colors[i % len(colors)] + '22',
+            opacity=0.65,
             line_color=colors[i % len(colors)],
         ))
     fig.update_layout(
