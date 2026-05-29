@@ -761,8 +761,8 @@ elif page == "🔮  Predict Employee":
                        decreasing=dict(color='#10b981')),
             title=dict(text="vs Dataset Baseline (16.1%)", font=dict(color='#6b7280', size=13)),
             gauge=dict(
-                axis=dict(range=[0, 100], tickcolor='#6b7280',
-                          tickwidth=1, tickcolor='rgba(255,255,255,0.3)'),
+                axis=dict(range=[0, 100], tickcolor='rgba(255,255,255,0.3)',
+                          tickwidth=1),
                 bar=dict(color=risk_color),
                 bgcolor='rgba(17,24,39,0.6)',
                 bordercolor='rgba(255,255,255,0.1)',
