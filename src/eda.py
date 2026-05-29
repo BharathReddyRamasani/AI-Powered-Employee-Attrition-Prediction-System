@@ -120,7 +120,7 @@ def income_box(df: pd.DataFrame) -> go.Figure:
             y=subset, name=f"{'Retained' if label == 'No' else 'Attrited'}",
             marker_color=color,
             line_color=color,
-            fillcolor=color.replace(')', ',0.2)').replace('rgb', 'rgba') if 'rgb' in color else color,
+            opacity=0.75,
             boxmean='sd',
             hovertemplate='<b>%{fullData.name}</b><br>%{y:$,.0f}<extra></extra>',
         ))
@@ -250,7 +250,9 @@ def age_distribution(df: pd.DataFrame) -> go.Figure:
         fig.add_trace(go.Violin(
             y=subset, name=f"{'Retained' if label == 'No' else 'Attrited'}",
             box_visible=True, meanline_visible=True,
-            fillcolor=color + '44', line_color=color,
+            marker_color=color,
+            line_color=color,
+            opacity=0.7,
             hovertemplate='<b>%{fullData.name}</b><br>Age: %{y}<extra></extra>',
         ))
     fig.update_layout(
