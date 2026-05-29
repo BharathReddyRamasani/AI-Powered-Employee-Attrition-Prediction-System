@@ -854,7 +854,7 @@ elif page == "🧩  Employee Segmentation":
     </div>
     """, unsafe_allow_html=True)
 
-    n_clusters = st.sidebar.slider("Number of Clusters", 2, 6, 3)
+    n_clusters = st.sidebar.slider("Number of Clusters", 3, 6, 3)
 
     with st.spinner("Running PCA + K-Means clustering…"):
         X_all_sc = np.vstack([X_train_sc, X_test_sc])
