@@ -12,7 +12,7 @@
 
 **IBM HR Analytics · 6 ML Models · Real-time Risk Scoring · Interactive Dashboards**
 
-[🚀 Live Demo](#) · [📊 Dataset](https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset) · [📖 Report](#)
+[🚀 Live Demo](https://ai-powered-employee-attrition-prediction-system-rbr.streamlit.app/) · [📊 Dataset](https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset) 
 
 </div>
 
