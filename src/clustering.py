@@ -18,12 +18,16 @@ DANGER  = '#ef4444'
 SUCCESS = '#10b981'
 MUTED   = '#6b7280'
 
-CLUSTER_COLORS = ['#6366f1', '#f59e0b', '#ef4444']
-CLUSTER_NAMES  = ['🏆 High Performers', '⚠️ At Risk', '🌱 New Employees']
+# Extended clusters configuration to support dynamic cluster counts (3 to 6)
+CLUSTER_COLORS = ['#6366f1', '#f59e0b', '#ef4444', '#10b981', '#a78bfa', '#fb923c']
+CLUSTER_NAMES  = ['🏆 High Performers', '⚠️ At Risk', '🌱 New Employees', '🎖️ Veterans', '💡 Rising Stars', '🔄 Transitional']
 CLUSTER_DESC   = [
     'Experienced, satisfied, high-income employees with low attrition risk.',
     'Mid-tenure employees showing warning signs: lower satisfaction or income.',
     'Early-career employees adapting; moderate to high attrition potential.',
+    'Long-tenured senior leaders.',
+    'High-potential employees on the rise.',
+    'Employees in career transition phase.',
 ]
 
 PLOTLY_LAYOUT = dict(
@@ -63,20 +67,23 @@ def pca_scatter_2d(X_pca: np.ndarray, labels: np.ndarray,
                    df_orig: pd.DataFrame, explained_var: np.ndarray) -> go.Figure:
     """2D PCA scatter colored by K-Means cluster."""
     fig = go.Figure()
+    unique_clusters = sorted(np.unique(labels))
 
-    for cluster_id in range(3):
+    for cluster_id in unique_clusters:
         mask = labels == cluster_id
+        name = CLUSTER_NAMES[cluster_id % len(CLUSTER_NAMES)]
+        color = CLUSTER_COLORS[cluster_id % len(CLUSTER_COLORS)]
         fig.add_trace(go.Scatter(
             x=X_pca[mask, 0], y=X_pca[mask, 1],
             mode='markers',
-            name=CLUSTER_NAMES[cluster_id],
+            name=name,
             marker=dict(
-                color=CLUSTER_COLORS[cluster_id],
+                color=color,
                 size=6, opacity=0.75,
                 line=dict(color='rgba(0,0,0,0.3)', width=0.5),
             ),
             hovertemplate=(
-                f'<b>{CLUSTER_NAMES[cluster_id]}</b><br>'
+                f'<b>{name}</b><br>'
                 'PC1: %{x:.3f}<br>PC2: %{y:.3f}<extra></extra>'
             ),
         ))
@@ -100,14 +107,18 @@ def pca_scatter_3d(X_pca3: np.ndarray, labels: np.ndarray,
                    explained_var: np.ndarray) -> go.Figure:
     """3D PCA scatter."""
     fig = go.Figure()
-    for cluster_id in range(3):
+    unique_clusters = sorted(np.unique(labels))
+
+    for cluster_id in unique_clusters:
         mask = labels == cluster_id
+        name = CLUSTER_NAMES[cluster_id % len(CLUSTER_NAMES)]
+        color = CLUSTER_COLORS[cluster_id % len(CLUSTER_COLORS)]
         fig.add_trace(go.Scatter3d(
             x=X_pca3[mask, 0], y=X_pca3[mask, 1], z=X_pca3[mask, 2],
             mode='markers',
-            name=CLUSTER_NAMES[cluster_id],
+            name=name,
             marker=dict(
-                color=CLUSTER_COLORS[cluster_id],
+                color=color,
                 size=3, opacity=0.7,
             ),
         ))
@@ -146,13 +157,20 @@ def cluster_profile_bars(X_pca: np.ndarray, labels: np.ndarray,
         means[col] = (means[col] - mn) / (mx - mn + 1e-9) * 100
 
     fig = go.Figure()
-    for cluster_id in range(3):
-        row = means[means['Cluster'] == cluster_id].iloc[0]
+    unique_clusters = sorted(means['Cluster'].unique())
+
+    for cluster_id in unique_clusters:
+        matching = means[means['Cluster'] == cluster_id]
+        if len(matching) == 0:
+            continue
+        row = matching.iloc[0]
+        name = CLUSTER_NAMES[cluster_id % len(CLUSTER_NAMES)]
+        color = CLUSTER_COLORS[cluster_id % len(CLUSTER_COLORS)]
         fig.add_trace(go.Bar(
-            name=CLUSTER_NAMES[cluster_id],
+            name=name,
             x=available,
             y=[row[c] for c in available],
-            marker_color=CLUSTER_COLORS[cluster_id],
+            marker_color=color,
             opacity=0.85,
         ))
     fig.update_layout(
@@ -170,8 +188,10 @@ def cluster_profile_bars(X_pca: np.ndarray, labels: np.ndarray,
 
 def cluster_attrition_pie(labels: np.ndarray, df_orig: pd.DataFrame) -> go.Figure:
     """Donut charts showing attrition composition per cluster."""
+    unique_clusters = sorted(np.unique(labels))
+    n_cl = len(unique_clusters)
     colors_yes = [c + 'cc' for c in CLUSTER_COLORS]
-    colors_no  = ['#10b981' + 'aa'] * 3
+    colors_no  = ['#10b981' + 'aa'] * n_cl
 
     df_c = df_orig.copy().iloc[:len(labels)]
     df_c['Cluster'] = labels
@@ -182,14 +202,14 @@ def cluster_attrition_pie(labels: np.ndarray, df_orig: pd.DataFrame) -> go.Figur
         return fig
     acol = attrition_col[0]
 
-    for cid in range(3):
+    for cid in unique_clusters:
         subset = df_c[df_c['Cluster'] == cid]
         yes = (subset[acol] == 'Yes').sum()
         no  = (subset[acol] == 'No').sum()
         rate = yes / (yes + no) * 100 if (yes + no) > 0 else 0
         fig.add_annotation(
             text=f"Cluster {cid+1}<br>{rate:.1f}% Attrition",
-            x=cid / 3 + 1/6, y=0.5,
+            x=cid / n_cl + 1/(2*n_cl) if n_cl > 0 else 0.5, y=0.5,
             showarrow=False,
             font=dict(size=12, color=TEXT),
             xref='paper', yref='paper',
@@ -208,13 +228,13 @@ def get_cluster_summary(labels: np.ndarray, df_orig: pd.DataFrame) -> pd.DataFra
     available = [c for c in num_cols if c in df_c.columns]
 
     summary = df_c.groupby('Cluster')[available].mean().round(1)
-    summary.index = [CLUSTER_NAMES[i] for i in summary.index]
+    summary.index = [CLUSTER_NAMES[i % len(CLUSTER_NAMES)] for i in summary.index]
 
     if 'Attrition' in df_c.columns:
         att_rate = df_c.groupby('Cluster')['Attrition'].apply(
             lambda x: round((x == 'Yes').mean() * 100, 1)
         )
-        att_rate.index = [CLUSTER_NAMES[i] for i in att_rate.index]
+        att_rate.index = [CLUSTER_NAMES[i % len(CLUSTER_NAMES)] for i in att_rate.index]
         summary['Attrition Rate (%)'] = att_rate
 
     summary['Size'] = df_c.groupby('Cluster').size().values
